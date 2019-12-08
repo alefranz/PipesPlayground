@@ -11,7 +11,7 @@ namespace Benchmark
             if (Debugger.IsAttached)
             {
                 var benchmark = new Benchmark();
-                benchmark.CopyMemoryChunksWithBuffers();
+                benchmark.CopyMemoryChunksWithBufferAsReadOnlySequence();
                 await benchmark.CopyPipeAsync();
             }
             else

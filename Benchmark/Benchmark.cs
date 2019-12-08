@@ -1,10 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,19 +23,19 @@ namespace Benchmark
             }
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void CopyArray()
         {
             _data.CopyTo(_destination, 0);
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void CopyMemory()
         {
             _data.CopyTo(_destination.AsMemory());
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void CopyMemoryChunks()
         {
             for (int position = 0; position < _data.Length; position += _chunkSize) {
@@ -49,7 +47,7 @@ namespace Benchmark
         }
 
         [Benchmark(Baseline = true)]
-        public void CopyMemoryChunksWithBuffers()
+        public void CopyMemoryChunksWithBufferAsReadOnlySequence()
         {
             // Trying to get close to pipe behaviour for happy path
 
@@ -75,14 +73,14 @@ namespace Benchmark
             }
         }
 
-        //[Benchmark]
+        [Benchmark]
         public void CopyStream()
         {
             using var stream = new MemoryStream(_destination);
             stream.Write(_data, 0, _data.Length);
         }
 
-        //[Benchmark]
+        [Benchmark]
         public async Task CopyPipeAsStreamAsync()
         {
             var pipe = new Pipe();
@@ -94,7 +92,7 @@ namespace Benchmark
             await consumer;
         }
 
-        //[Benchmark]
+        [Benchmark]
         public async Task CopyPipeAsync()
         {
             var pipe = new Pipe();
