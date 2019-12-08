@@ -1,0 +1,18 @@
+﻿|    Method |     Mean |    Error |   StdDev |
+|---------- |---------:|---------:|---------:|
+| CopyArray | 32.45 us | 0.365 us | 0.342 us |
+|      Copy | 32.35 us | 0.135 us | 0.119 us |
+
+|     Method |      Mean |    Error |   StdDev |
+|----------- |----------:|---------:|---------:|
+| CopyStream |  32.96 us | 0.710 us | 0.665 us |
+|   CopyPipe | 470.28 us | 8.069 us | 7.548 us |
+
+|         Method |     Mean |    Error |   StdDev |
+|--------------- |---------:|---------:|---------:|
+| CopyMemoryLoop | 32.20 us | 0.112 us | 0.104 us |
+|     CopyStream | 32.58 us | 0.259 us | 0.243 us |
+
+|           Method |     Mean |    Error |   StdDev |
+|----------------- |---------:|---------:|---------:|
+| CopyMemoryChunks | 35.79 us | 0.162 us | 0.135 us |

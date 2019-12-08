@@ -69,7 +69,7 @@ namespace PipesPlaygroun
                     receivedSegments.Add(memory.ToArray());
                 }
 
-                reader.AdvanceTo(buffer.Start, buffer.End);
+                reader.AdvanceTo(buffer.End, buffer.End);
 
                 if (result.IsCompleted)
                 {
