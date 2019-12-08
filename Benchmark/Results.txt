@@ -1,9 +1,7 @@
-﻿|                                       Method |      Mean |    Error |   StdDev | Ratio | RatioSD |
-|--------------------------------------------- |----------:|---------:|---------:|------:|--------:|
-|                                    CopyArray |  32.53 us | 0.305 us | 0.285 us |  0.43 |    0.00 |
-|                                   CopyMemory |  32.38 us | 0.212 us | 0.198 us |  0.42 |    0.00 |
-|                             CopyMemoryChunks |  35.98 us | 0.205 us | 0.192 us |  0.47 |    0.00 |
-| CopyMemoryChunksWithBufferAsReadOnlySequence |  76.39 us | 0.348 us | 0.308 us |  1.00 |    0.00 |
-|                                   CopyStream |  32.32 us | 0.159 us | 0.149 us |  0.42 |    0.00 |
-|                        CopyPipeAsStreamAsync | 433.79 us | 9.491 us | 8.878 us |  5.68 |    0.12 |
-|                                CopyPipeAsync | 463.06 us | 4.353 us | 4.072 us |  6.06 |    0.06 |
+﻿|                                       Method |      Mean |    Error |   StdDev |
+|--------------------------------------------- |----------:|---------:|---------:|
+|                                   CopyMemory |  32.24 us | 0.282 us | 0.264 us |
+|                             CopyMemoryChunks |  36.10 us | 0.194 us | 0.172 us |
+| CopyMemoryChunksWithBufferAsReadOnlySequence |  77.09 us | 0.473 us | 0.443 us |
+|                                CopyPipeAsync | 466.25 us | 3.482 us | 3.087 us |
+|                        CopyPipeAsStreamAsync | 432.95 us | 6.107 us | 5.713 us |

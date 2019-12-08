@@ -1,7 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using System;
 using System.Buffers;
-using System.IO;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,32 +23,32 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void CopyArray()
-        {
-            _data.CopyTo(_destination, 0);
-        }
-
-        [Benchmark]
         public void CopyMemory()
         {
-            _data.CopyTo(_destination.AsMemory());
+            var sourceMemory = new ReadOnlyMemory<byte>(_data);
+            var destinationMemory = _destination.AsMemory();
+
+            sourceMemory.CopyTo(destinationMemory);
         }
 
         [Benchmark]
         public void CopyMemoryChunks()
         {
+            var sourceMemory = new ReadOnlyMemory<byte>(_data);
+            var destinationMemory = _destination.AsMemory();
+
             for (int position = 0; position < _data.Length; position += _chunkSize) {
-                var source = _data.AsMemory(position, _chunkSize);
-                var destination = _destination.AsMemory(position, _chunkSize);
+                var source = sourceMemory.Slice(position, _chunkSize);
+                var destination = destinationMemory.Slice(position, _chunkSize);
 
                 source.CopyTo(destination);
             }
         }
 
-        [Benchmark(Baseline = true)]
+        [Benchmark]
         public void CopyMemoryChunksWithBufferAsReadOnlySequence()
         {
-            // Trying to get close to pipe behaviour for happy path
+            // Trying to be vaguely similar to pipe behaviour for happy path
 
             var sourceMemory = new ReadOnlyMemory<byte>(_data);
 
@@ -74,31 +73,24 @@ namespace Benchmark
         }
 
         [Benchmark]
-        public void CopyStream()
-        {
-            using var stream = new MemoryStream(_destination);
-            stream.Write(_data, 0, _data.Length);
-        }
-
-        [Benchmark]
-        public async Task CopyPipeAsStreamAsync()
-        {
-            var pipe = new Pipe();
-            var consumer = ReceiveDataAsync(pipe.Reader, _destination, CancellationToken.None);
-            using (var stream = pipe.Writer.AsStream())
-            {
-                stream.Write(_data, 0, _data.Length);
-            }
-            await consumer;
-        }
-
-        [Benchmark]
         public async Task CopyPipeAsync()
         {
             var pipe = new Pipe();
             var consumer = ReceiveDataAsync(pipe.Reader, _destination, CancellationToken.None);
             var producer = WriteDataAsync(pipe.Writer, new ReadOnlyMemory<byte>(_data));
             await Task.WhenAll(consumer, producer);
+        }
+
+        [Benchmark]
+        public async Task CopyPipeAsStreamAsync()
+        {
+            var pipe = new Pipe();
+            var consumer = ReceiveDataAsync(pipe.Reader, _destination.AsMemory(), CancellationToken.None);
+            using (var stream = pipe.Writer.AsStream())
+            {
+                stream.Write(_data, 0, _data.Length);
+            }
+            await consumer;
         }
 
         private async Task WriteDataAsync(PipeWriter writer, ReadOnlyMemory<byte> data)
@@ -108,7 +100,7 @@ namespace Benchmark
             await writer.CompleteAsync();
         }
 
-        private async Task ReceiveDataAsync(PipeReader reader, byte[] receivedData, CancellationToken cancellationToken)
+        private async Task ReceiveDataAsync(PipeReader reader, Memory<byte> destinationMemory, CancellationToken cancellationToken)
         {
             var position = 0;
 
@@ -119,7 +111,7 @@ namespace Benchmark
 
                 foreach (var memory in buffer)
                 {
-                    memory.CopyTo(receivedData.AsMemory(position));
+                    memory.CopyTo(destinationMemory.Slice(position, memory.Length));
                     position += memory.Length;
                 }
                 
@@ -133,7 +125,7 @@ namespace Benchmark
             await reader.CompleteAsync();
         }
 
-        public class ArraySegment : ReadOnlySequenceSegment<byte>
+        private class ArraySegment : ReadOnlySequenceSegment<byte>
         {
             public static ReadOnlySequence<byte> Create(byte[][] buffer)
             {
